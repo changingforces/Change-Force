@@ -27,3 +27,6 @@ CLOUDFLARE PAGES DIRECT UPLOAD:
 If you only want one page live:
 - Rename that page to index.html.
 - Upload only that renamed file.
+
+
+UPDATE: This bundle now includes full-year-gate-map.html and the root index.html links all three pages. Upload all files together to GitHub Pages.

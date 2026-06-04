@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CFS — 2026 Full Year Gate Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#c9a84c;--ink:#12121e;--slate:#1c1c2e;--deep:#0a0a12;
+  --rim:rgba(201,168,76,0.28);--mist:rgba(201,168,76,0.1);
+  --txt:#e8e0d0;--dim:#8a8070;--soft:#b0a890;
+  --green:#4ecb71;--blue:#6a9fe8;--amber:#e8c96a;--red:#e85c4a;--purple:#b86ae8;
+  --org:#4a8fd4;--com:#c85a5a;--lead:#c9a84c;--create:#4ecb71;
+}
+html,body{background:var(--deep);color:var(--txt);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden}
+body{padding-bottom:2rem}
+.app{max-width:640px;margin:0 auto}
+
+.hdr{text-align:center;padding:1.5rem 1rem .75rem;border-bottom:0.5px solid var(--rim)}
+.hdr h1{font-family:'Cinzel',serif;font-size:19px;font-weight:400;color:var(--gold);letter-spacing:.14em}
+.hdr p{font-size:11px;color:var(--dim);letter-spacing:.07em;margin-top:4px}
+
+/* MONTH NAV */
+.month-nav{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;padding:.75rem 1rem;border-bottom:0.5px solid var(--rim);background:var(--deep);position:sticky;top:0;z-index:50;scrollbar-width:none}
+.month-nav::-webkit-scrollbar{display:none}
+.mnav-btn{flex-shrink:0;background:var(--slate);border:0.5px solid var(--rim);border-radius:8px;color:var(--dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.06em;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.mnav-btn.active{background:var(--mist);border-color:var(--gold);color:var(--gold)}
+.mnav-btn.create-m{border-color:rgba(78,203,113,0.4);color:rgba(78,203,113,0.7)}
+.mnav-btn.create-m.active{background:rgba(78,203,113,0.1);border-color:var(--green);color:var(--green)}
+.mnav-btn.current-m{border-color:var(--gold)}
+
+/* PANES */
+.mpane{display:none;padding:1rem}.mpane.active{display:block}
+
+/* CARDS */
+.card{background:var(--ink);border:0.5px solid var(--rim);border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:1rem}
+.card-title{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:.7rem}
+.card p{font-size:14px;line-height:1.75;color:var(--txt);font-weight:300;margin-bottom:.5rem}
+.card p:last-child{margin-bottom:0}
+.card em{color:var(--soft)}
+
+/* MONTH HEADER */
+.m-header{background:var(--ink);border:0.5px solid var(--rim);border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:1rem}
+.m-header.create-h{border-color:rgba(78,203,113,0.4);background:rgba(78,203,113,0.03)}
+.m-header.current-h{border-color:var(--gold)}
+.m-lun{font-size:11px;color:var(--dim);font-family:'Cinzel',serif;letter-spacing:.05em;margin-bottom:4px}
+.m-name{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem}
+.m-sig{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.6rem}
+.pill{display:inline-block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.04em;padding:3px 10px;border-radius:12px;white-space:nowrap}
+.p-org{background:rgba(74,143,212,0.12);color:#4a8fd4;border:0.5px solid rgba(74,143,212,0.4)}
+.p-com{background:rgba(200,90,90,0.12);color:#c85a5a;border:0.5px solid rgba(200,90,90,0.4)}
+.p-lead{background:rgba(201,168,76,0.12);color:#c9a84c;border:0.5px solid rgba(201,168,76,0.4)}
+.p-create{background:rgba(78,203,113,0.12);color:#4ecb71;border:0.5px solid rgba(78,203,113,0.4)}
+.arr{color:var(--dim);font-size:13px}
+.badge{display:inline-block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.06em;padding:2px 9px;border-radius:8px}
+.badge-create{background:rgba(78,203,113,0.1);border:0.5px solid rgba(78,203,113,0.4);color:var(--green)}
+.badge-now{background:rgba(201,168,76,0.12);border:0.5px solid rgba(201,168,76,0.4);color:var(--gold)}
+.badge-anchor{background:rgba(74,143,212,0.1);border:0.5px solid rgba(74,143,212,0.3);color:#4a8fd4}
+.badge-stable{background:rgba(201,168,76,0.08);border:0.5px solid rgba(201,168,76,0.2);color:var(--soft)}
+.m-dates{font-size:12px;color:var(--dim);margin-top:.3rem}
+.m-body{font-size:14px;line-height:1.75;color:var(--txt);font-weight:300}
+
+/* GATE BOXES */
+.gate-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.gate-box{border-radius:9px;padding:.75rem .9rem;border:0.5px solid}
+.gate-box.close{background:rgba(232,92,74,0.06);border-color:rgba(232,92,74,0.35)}
+.gate-box.open{background:rgba(78,203,113,0.05);border-color:rgba(78,203,113,0.35)}
+.g-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.09em;margin-bottom:3px}
+.g-label.close{color:var(--red)}.g-label.open{color:var(--green)}
+.g-date{font-size:14px;color:var(--txt);font-variant-numeric:tabular-nums}
+.g-sub{font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4}
+
+/* PHASE BLOCKS */
+.phase-list{display:flex;flex-direction:column;gap:7px;margin-bottom:1rem}
+.phase-block{border-radius:9px;padding:.85rem 1rem;border:0.5px solid;position:relative}
+.ph-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.09em;margin-bottom:3px}
+.ph-dates{font-size:11px;color:var(--dim);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ph-desc{font-size:13px;line-height:1.65;font-weight:300}
+
+.ph-prep{background:rgba(106,158,232,.07);border-color:rgba(106,158,232,.25)}
+.ph-prep .ph-label{color:#9dbfe8}
+.ph-prep .ph-desc{color:#9dbfe8}
+
+.ph-ax{background:rgba(184,106,232,.07);border-color:rgba(184,106,232,.22)}
+.ph-ax .ph-label{color:#c898ea}
+.ph-ax .ph-desc{color:var(--soft)}
+
+.ph-int{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.22)}
+.ph-int .ph-label{color:var(--gold)}
+.ph-int .ph-desc{color:var(--soft)}
+
+.ph-close{background:rgba(232,92,74,.08);border-color:rgba(232,92,74,.35)}
+.ph-close .ph-label{color:var(--red)}
+.ph-close .ph-desc{color:var(--txt)}
+
+.ph-open{background:rgba(78,203,113,.07);border-color:rgba(78,203,113,.3)}
+.ph-open .ph-label{color:var(--green)}
+.ph-open .ph-desc{color:var(--txt)}
+
+.ph-seq{background:rgba(138,128,112,.08);border-color:rgba(138,128,112,.2)}
+.ph-seq .ph-label{color:var(--dim)}
+.ph-seq .ph-desc{color:var(--soft)}
+
+.ph-now{border-width:1px!important}
+.ph-now::before{content:"▶ NOW";position:absolute;top:.5rem;right:.75rem;font-family:'Cinzel',serif;font-size:9px;color:var(--gold);letter-spacing:.08em}
+
+@media(max-width:420px){
+  .gate-pair{grid-template-columns:1fr}
+  .ph-desc{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hdr">
+  <h1>CFS · 2026 GATE MAP</h1>
+  <p>full year · all lunations · complete phase detail</p>
+</div>
+
+<div class="month-nav" id="monthNav"></div>
+<div id="paneContainer"></div>
+
+</div>
+
+<script>
+function isNow(s,e){var n=new Date(),a=new Date(s),b=new Date(e);return n>=a&&n<=b;}
+
+var LUNATIONS = [
+{
+  id:1277, month:"January", lun:"Lunation 1277", held:"Lead", expressed:"Org", create:true, anchor:false, stable:false,
+  dates:"Dec 6 2025 – Jan 17 2026",
+  sig_note:"Lead creating Organization — Third Create Gate",
+  body:"The third Create gate. Leadership produces a genuinely new organizational structure — the loop closes here and hands off to the February opening. What January builds is not just arrangement — it is the product of conviction expressing itself as form. The full weight of everything that moved through the previous year compresses into this gate. What binds here either establishes the new structure or reveals the direction was not solid enough to produce it.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Jan 2 – Jan 9",
+     desc:"The full moon lands Jan 2 — peak expression, maximum visibility. Watch what surfaces without forcing anything. Commitments building through December now show their shape or reveal they have not formed yet. Observe rather than push.",
+     now:isNow("2026-01-02","2026-01-09")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Jan 17 – Jan 21",
+     desc:"New cycle opens Jan 17. The first three action axes activate — orientation, observation, modeling. The field is reading what exists before it directs. Listen more than you move. The Create gate fires at the intersection of direction and structure.",
+     now:isNow("2026-01-17","2026-01-21")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Jan 21 – Jan 25",
+     desc:"Planning, prototyping, testing. The direction that was locked in April and December is now producing organized form. Watch for things getting structured that have been pointing loosely. This is the productive heart of the Create gate — direction becoming something you can hold.",
+     now:isNow("2026-01-21","2026-01-25")},
+    {cls:"ph-close ph-now", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Jan 10, 2026",
+     desc:"The binding moment. What has been building through December either lands as a real event here or does not land at all. Leadership creates organization at this gate — meaning the new structure either exists after this moment or doesn't exist at all. Log exactly what happens. Freeze before you look. Score after.",
+     now:isNow("2026-01-09","2026-01-11")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Jan 10 – Jan 17",
+     desc:"The closing sequence. The field is completing its accounting before the new cycle opens. What held at the gate carries forward. What didn't bind dissolves here. Review and honest assessment — not new action.",
+     now:isNow("2026-01-10","2026-01-17")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Jan 17, 2026",
+     desc:"Lunation 1278 opens. The new cycle is February — Organization expressing as Communication. The pre-boot opening. What January built now has to speak. Maximum possibility, minimum structure. Let it form. Don't force definition here.",
+     now:isNow("2026-01-17","2026-01-18")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Jan 17 – Jan 24",
+     desc:"First clear read of what the January gate produced. What was created is now either visible as new structure or absent. Log what you observe without editing it toward what you expected. The post-gate read is the most honest evidence window in the cycle.",
+     now:isNow("2026-01-17","2026-01-24")},
+  ]
+},
+{
+  id:1278, month:"February", lun:"Lunation 1278", held:"Org", expressed:"Com", create:false, anchor:false, stable:false,
+  dates:"Jan 17 – Feb 16, 2026",
+  sig_note:"Organization expressing as Communication — Pre-Boot Opening",
+  body:"The pre-boot opening. Held structure reaches outward as communication for the first time in the new loop. The field begins to speak what it has been holding since November. February is the first real exchange — what was structured in January now has to explain itself. Watch for explanations that feel complete and settled before anyone finishes hearing them. This is the signature of the month — organized communication.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Feb 1 – Feb 7",
+     desc:"Full moon Feb 1 — peak visibility. What was communicated through January now shows whether it landed. Observe the response before the gate. What is being received and what is being ignored tells you what the field is actually carrying.",
+     now:isNow("2026-02-01","2026-02-07")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Feb 16 – Feb 20",
+     desc:"New cycle opens Feb 16. Orientation, observation, modeling. The organized structure is making first contact with external communication. Watch what needs to be explained and what doesn't — the gap between those two is where the most useful work happens.",
+     now:isNow("2026-02-16","2026-02-20")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Feb 20 – Feb 24",
+     desc:"Planning, prototyping, testing communication. The structure held from January is being expressed outward. This is not improvised speech — it is organized communication, already structured before it is delivered. The output tends to feel complete and hard to argue with.",
+     now:isNow("2026-02-20","2026-02-24")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Feb 8, 2026",
+     desc:"The binding moment. What has been communicating through January either lands as a real exchange here or reveals it wasn't held together by structure. Log what closes, settles, or resolves. Freeze before you look. Score after.",
+     now:isNow("2026-02-07","2026-02-09")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Feb 8 – Feb 16",
+     desc:"Closing sequence. The field accounts for what the communication produced. What was received and what was missed. What carries forward into March's return arc — where communication becomes structure again.",
+     now:isNow("2026-02-08","2026-02-16")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Feb 16, 2026",
+     desc:"Lunation 1279 opens. The new cycle is March — Communication expressing as Organization. The return arc begins. What February communicated now becomes the material for new structure. Let it form before you build from it.",
+     now:isNow("2026-02-16","2026-02-17")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Feb 16 – Feb 23",
+     desc:"First read of what the February gate produced. What communication held? What was organized enough to travel? Log observations without editing toward what you expected.",
+     now:isNow("2026-02-16","2026-02-23")},
+  ]
+},
+{
+  id:1279, month:"March", lun:"Lunation 1279", held:"Com", expressed:"Org", create:false, anchor:false, stable:false,
+  dates:"Feb 16 – Mar 17, 2026",
+  sig_note:"Communication expressing as Organization — The Return Arc",
+  body:"The return arc. What has been expressed becomes the material for a new organization — the spoken becomes scaffolding. Communication expressing as organization means the field is turning conversation into structure. Watch for discussions that produce frameworks rather than just exchange. The structure produced here feeds directly into April's stabilization and ultimately into May's Create gate.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Mar 3 – Mar 9",
+     desc:"Full moon Mar 3. What was communicated in February is now showing what it built. The return arc is already operating — watch for conversations from the previous cycle that are becoming visible as organized form. What is being arranged from what was said?",
+     now:isNow("2026-03-03","2026-03-09")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Mar 17 – Mar 21",
+     desc:"New cycle opens Mar 17. Orientation, observation, modeling. The communicative base is organizing itself — finding the structure in what was expressed. This is the phase where talking becomes building. The conversations that produced the clearest structure are the ones worth following.",
+     now:isNow("2026-03-17","2026-03-21")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Mar 21 – Mar 25",
+     desc:"Planning, prototyping, testing organization. Communication has produced its structural output. This is the material the May Create gate will work from. What gets organized here is what the hinge ignition will transform.",
+     now:isNow("2026-03-21","2026-03-25")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Mar 10, 2026",
+     desc:"Binding moment. What communication has been building into structure either locks here or reveals it was not solid enough to hold form. Log what settles — agreements, frameworks, arrangements that reach a conclusion. Freeze before you look. Score after.",
+     now:isNow("2026-03-09","2026-03-11")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Mar 10 – Mar 17",
+     desc:"Closing sequence. The field accounts for what structure the communication produced. What is solid enough to carry forward to April and May? What dissolved and needs to rebuild?",
+     now:isNow("2026-03-10","2026-03-17")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Mar 17, 2026",
+     desc:"Lunation 1280 opens. April — Leadership held and expressed as the same quality. The stabilization point. Direction locks. Let it settle before the May Create gate fires.",
+     now:isNow("2026-03-17","2026-03-18")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Mar 17 – Mar 24",
+     desc:"First read of what the March gate produced. What structure emerged from the communication? Log what is now organized that wasn't before.",
+     now:isNow("2026-03-17","2026-03-24")},
+  ]
+},
+{
+  id:1280, month:"April", lun:"Lunation 1280", held:"Lead", expressed:"Lead", create:false, anchor:false, stable:true,
+  dates:"Mar 17 – Apr 16, 2026",
+  sig_note:"Leadership held and expressed as the same quality — Stabilizer",
+  body:"The stabilization point of the Lead axis. Conviction locks. The field is not converting, not producing — it is settling into settled direction. Held and expressed are the same quality, which means what you carry and what you produce are the same thing. April is the stillness before the first Create gate fires. What direction is locked here is what May will ignite. Others feel this month as settled certainty that is hard to redirect.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Apr 1 – Apr 8",
+     desc:"Full moon Apr 1 — Easter week. Maximum expression of the Lead axis. What direction has been forming through March now shows its full shape. Watch what is pointing clearly versus what is still forming. The stabilization gate will lock the clear direction and let the unclear ones dissolve.",
+     now:isNow("2026-04-01","2026-04-08")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Apr 16 – Apr 20",
+     desc:"New cycle opens Apr 16. Orientation, observation, modeling from a stabilized directional base. The field is reading what the locked direction produces. This is a quiet phase — the conviction is already established. The work here is confirmation, not formation.",
+     now:isNow("2026-04-16","2026-04-20")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Apr 20 – Apr 24",
+     desc:"Planning, prototyping, testing from locked direction. April actions tend to have unusual follow-through because the direction is not debated internally. What gets built here carries the weight of settled conviction. This is the structural base May's Create gate will transform.",
+     now:isNow("2026-04-20","2026-04-24")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Apr 9, 2026",
+     desc:"Binding moment. Direction either locks completely here or reveals it was not as settled as it appeared. What stabilizes at this gate is the directional base the May Create gate will work from. Log what locks — decisions that reach a point of no return. Freeze before you look. Score after.",
+     now:isNow("2026-04-08","2026-04-10")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Apr 9 – Apr 16",
+     desc:"Closing sequence. The field accounts for what locked and what didn't. What direction is solid enough to survive the May transition? What needs more formation before it can be transformed?",
+     now:isNow("2026-04-09","2026-04-16")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Apr 16, 2026",
+     desc:"Lunation 1281 opens. May — the first Create gate. Organization creates Communication. The hinge ignition. What April locked in direction, May will transform into something new. Let it form without forcing the expression.",
+     now:isNow("2026-04-16","2026-04-17")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Apr 16 – Apr 23",
+     desc:"First read of what the April gate produced. What direction is now locked? What is pointing clearly? Log what settled versus what is still forming.",
+     now:isNow("2026-04-16","2026-04-23")},
+  ]
+},
+{
+  id:1281, month:"May", lun:"Lunation 1281", held:"Org", expressed:"Com", create:true, anchor:false, stable:false,
+  dates:"Apr 16 – May 15, 2026",
+  sig_note:"Organization creating Communication — First Create Gate ▲",
+  body:"The first Create gate of the year. Organization produces something genuinely new — a communicative output that could not have come from expression alone. This is the hinge ignition: the structured base generates new communication. The field is not converting organization into communication — it is creating it. What is created here is fundamentally new. It did not exist in the previous cycle. Watch for explanations, frameworks, or expressions that surprise even the person producing them.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Apr 24 – May 7",
+     desc:"Two full moons bracket this window — May 1 and May 30 (Blue Moon). Maximum expression of the organizational base before the Create gate fires. Watch what has been held in structure that is ready to become communication. The preparation window is longer here because of the Blue Moon — more time for what is building to show its shape.",
+     now:isNow("2026-04-24","2026-05-07")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"May 15 – May 19",
+     desc:"New cycle opens May 15. Orientation, observation, modeling at the Create gate. The organizational base is making first contact with its new communicative output. This is the first moment where what has been held in structure begins to speak in a genuinely new way. Watch carefully — the new communication often sounds different from what was expected.",
+     now:isNow("2026-05-15","2026-05-19")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"May 19 – May 23",
+     desc:"Planning, prototyping, testing the new communication. The Create gate is active. What is being expressed here is not a conversion of organization into words — it is something new that organization produced. The Blue Moon (May 30) will amplify whatever has been created through this window.",
+     now:isNow("2026-05-19","2026-05-23")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"May 8, 2026",
+     desc:"The first major binding moment of the year. What the Create gate produces either lands here as a real new communicative form or reveals the organizational base was not solid enough to generate it. This is one of the three most load-bearing gate closes of the year. Log exactly what happens. Freeze before you look. Score after.",
+     now:isNow("2026-05-07","2026-05-09")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"May 8 – May 15",
+     desc:"Closing sequence. Blue Moon May 30 falls in the post-gate period — unusual double amplification. The field is integrating what the Create gate produced. What is genuinely new? What is just a restatement of what was already organized? The distinction matters for the June stabilization.",
+     now:isNow("2026-05-08","2026-05-15")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"May 15, 2026",
+     desc:"Lunation 1282 opens. June — Communication stabilizing itself. What May created now has to hold on its own without the organizational structure behind it in the room. The question June asks is: does the communication stand? Let it form before testing it.",
+     now:isNow("2026-05-15","2026-05-16")},
+    {cls:"ph-seq", label:"POST-GATE WEEK + BLUE MOON",
+     dates:"May 15 – May 30",
+     desc:"Extended post-gate window — the Blue Moon (May 30) amplifies the read. What did the Create gate actually produce? What new communication exists that didn't exist before April? Log without editing toward expectation. The Blue Moon is peak visibility for the Create gate's output.",
+     now:isNow("2026-05-15","2026-05-30")},
+  ]
+},
+{
+  id:1282, month:"June", lun:"Lunation 1282", held:"Com", expressed:"Com", create:false, anchor:false, stable:true,
+  dates:"May 15 – Jun 14, 2026",
+  sig_note:"Communication held and expressed as the same quality — Stabilizer",
+  body:"The stabilization point of the communication axis. What May created now has to hold on its own. Held and expressed are the same quality — the message locks. This is not a conversion month and not a creation month. It is a consolidation month. The field is asking one question: does the communication stand without the organizational structure that produced it? The answer either confirms the May Create gate or reveals it didn't fully fire.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"May 30 – Jun 6",
+     desc:"Blue Moon May 30 opens this preparation window — maximum visibility for what the May Create gate produced. Two full moons in the same calendar month means the field has been running at peak expression. Watch what is still resonating from May versus what has already faded. What is still being communicated without the structure behind it?",
+     now:isNow("2026-05-30","2026-06-06")},
+    {cls:"ph-ax", label:"A5 · ADAPTATION",
+     dates:"Jun 3 – Jun 6",
+     desc:"The field is in adaptation mode. Held instinct moving toward expressed response. This is the phase where the system reads what the May Create gate produced and adjusts before the gate. The right move here is observation and small corrections — not new launches.",
+     now:isNow("2026-06-03","2026-06-06")},
+    {cls:"ph-int", label:"A6 · INTEGRATION",
+     dates:"Jun 6 – Jun 10",
+     desc:"Held identity moving toward expressed role. The field is pulling everything together before the gate fires. Integration means the pieces that have been separate are finding their relationship. This is the last full phase before the handoff. What is coherent now carries forward. What isn't doesn't.",
+     now:isNow("2026-06-06","2026-06-10")},
+    {cls:"ph-close ph-now", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Jun 7, 2026",
+     desc:"The gate closes. The last quarter moon is the binding moment — the old cycle locks its result. Whatever has been building either lands as a real event here or it doesn't land at all. This is the most load-bearing single point in the window. A binding event here is what the system predicts. Log exactly what happens.",
+     now:isNow("2026-06-06","2026-06-08")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Jun 14, 2026",
+     desc:"Lunation 1283 opens. July — Leadership expressing as Organization. The direction that has been pointing now produces structure. The most open moment — maximum possibility with minimum structure. Don't force definition. Let it form.",
+     now:isNow("2026-06-13","2026-06-15")},
+    {cls:"ph-seq", label:"CLOSING SEQUENCE",
+     dates:"Jun 7 – Jun 14",
+     desc:"Verification, return, and either a preventive seed or idle. The field is completing its accounting — what happened, what held, what needs to carry forward. The dark moon period (Jun 10–14) is the maximum held state before the new cycle opens. Review and honest assessment, not new action.",
+     now:isNow("2026-06-07","2026-06-14")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Jun 14 – Jun 22",
+     desc:"The field has crossed. What bound at the gate is now in motion. What didn't bind is either still forming or has dissolved. This week is the first clear read of what the gate produced. Log what you observe without editing it toward what you expected.",
+     now:isNow("2026-06-14","2026-06-22")},
+  ]
+},
+{
+  id:1283, month:"July", lun:"Lunation 1283", held:"Lead", expressed:"Org", create:false, anchor:false, stable:false,
+  dates:"Jun 14 – Jul 13, 2026",
+  sig_note:"Leadership expressing as Organization — Quiet Builder",
+  body:"Leadership expressing as organization. The direction locked through April now produces structure — the directive becomes a system, a plan, an arranged form. July is a quiet building month. The output is order and organized form, not announcements. Watch for things getting arranged that have been loosely held for months. The structure produced here is what August will direct from. July people and July field both lead the same way — by producing order as evidence of the direction.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Jun 28 – Jul 5",
+     desc:"Full moon Jun 29 opens the preparation window. What June stabilized in communication is now showing what direction it produced. Watch what is pointing clearly from the June gate. The July field will organize whatever direction emerged — not invent new direction, but arrange what is already pointing.",
+     now:isNow("2026-06-28","2026-07-05")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Jul 13 – Jul 17",
+     desc:"New cycle opens Jul 13. Orientation, observation, modeling from the directional base. The field is reading what exists before it arranges. Leadership observing before it structures. The observation phase is not passive — it is the field selecting what direction is strong enough to organize around.",
+     now:isNow("2026-07-13","2026-07-17")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Jul 17 – Jul 21",
+     desc:"Planning, prototyping, testing the organizational output. Direction is producing form. Systems, plans, arranged frameworks — these are the outputs of this phase. What gets organized here is the structural base August will direct from. The quieter the July work, the more solid the August direction.",
+     now:isNow("2026-07-17","2026-07-21")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Jul 6, 2026",
+     desc:"Binding moment. What direction has been organizing either locks into solid structure here or reveals it was pointing at something that wasn't actually there. Log what gets arranged — agreements that produce systems, decisions that create order. Freeze before you look. Score after.",
+     now:isNow("2026-07-05","2026-07-07")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Jul 6 – Jul 13",
+     desc:"Closing sequence. What structure did the direction produce? What is solid enough to carry into August? What needs more formation? The field is accounting for the gap between what was pointing and what actually got arranged.",
+     now:isNow("2026-07-06","2026-07-13")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Jul 13, 2026",
+     desc:"Lunation 1284 opens. August — Organization expressing as Leadership. The structure July built now points. What was arranged now directs. The most structurally grounded leadership of the year fires from this gate.",
+     now:isNow("2026-07-13","2026-07-14")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Jul 13 – Jul 20",
+     desc:"First read of what the July gate produced. What is now organized that wasn't before June? Log what structures emerged without announcing themselves.",
+     now:isNow("2026-07-13","2026-07-20")},
+  ]
+},
+{
+  id:1284, month:"August", lun:"Lunation 1284", held:"Org", expressed:"Lead", create:false, anchor:false, stable:false,
+  dates:"Jul 13 – Aug 12, 2026",
+  sig_note:"Organization expressing as Leadership — Structural Direction",
+  body:"Organization expressing as leadership. The structure built in July now points — what was arranged now directs. This is structural leadership: not charismatic, not vocal, but backed by the full weight of what was organized first. August is the last month before the second Create gate. The direction it establishes is what September will transform. When the structure is solid the direction is clear and difficult to redirect.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Jul 28 – Aug 4",
+     desc:"Full moon Jul 28 opens the preparation window. What July organized is now at peak visibility. Watch what structure has emerged — what is pointing clearly versus what is still loose. The August field will direct from whatever is most solidly organized. The preparation window is the last chance to strengthen structure before it becomes the base for direction.",
+     now:isNow("2026-07-28","2026-08-04")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Aug 12 – Aug 16",
+     desc:"New cycle opens Aug 12. Orientation, observation, modeling from an organized base expressing leadership. The field is reading what the organized structure points toward. This is a quiet but load-bearing phase — the direction that emerges here has the full weight of the preceding structure behind it.",
+     now:isNow("2026-08-12","2026-08-16")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Aug 16 – Aug 19",
+     desc:"Planning, prototyping, testing structural leadership. Direction is being produced from organized form. Actions in this phase tend to feel inevitable — not aggressive or declarative, but hard to argue with because the structure is already visible. The direction established here is what September's Create gate will transform.",
+     now:isNow("2026-08-16","2026-08-19")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Aug 5, 2026",
+     desc:"Binding moment. What organizational structure has been producing direction either locks here as a real directional statement or reveals the structure was not solid enough to produce authority. Log what directs — decisions, commitments, positions that establish something. Freeze before you look. Score after.",
+     now:isNow("2026-08-04","2026-08-06")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Aug 5 – Aug 12",
+     desc:"Closing sequence. What direction did the structure produce? What is pointing solidly enough to survive September's Create gate? The September gate will create leadership from communication — the August direction is what the communication will build from.",
+     now:isNow("2026-08-05","2026-08-12")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Aug 12, 2026",
+     desc:"Lunation 1285 opens. September — the second Create gate. Communication creates Leadership. This is one of the most load-bearing openings of the year. What has been building through July and August will be transformed at the September gate.",
+     now:isNow("2026-08-12","2026-08-13")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Aug 12 – Aug 19",
+     desc:"First read of what the August gate produced. What direction is now established from structure? Log what is pointing clearly that wasn't before July.",
+     now:isNow("2026-08-12","2026-08-19")},
+  ]
+},
+{
+  id:1285, month:"September", lun:"Lunation 1285", held:"Com", expressed:"Lead", create:true, anchor:false, stable:false,
+  dates:"Aug 12 – Sep 11, 2026",
+  sig_note:"Communication creating Leadership — Second Create Gate ▲",
+  body:"The second Create gate of the year. Communication produces leadership — not just direction but new leading capacity that did not exist before the communication built it. September is one of the three most load-bearing months of the year. What gets expressed here either creates real authority or reveals the communication was not solid enough to produce it. Watch closely. The authority that emerges from this gate has a different quality from the structural leadership of August — it is generated, not derived.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Aug 26 – Sep 2",
+     desc:"Full moon Aug 27 opens the preparation window. What August directed is now at peak visibility. Watch what the structural direction has been communicating — what is being said from a position of organized authority. The September Create gate will either transform that communication into genuine new leadership or reveal the direction was not communicated solidly enough.",
+     now:isNow("2026-08-26","2026-09-02")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Sep 11 – Sep 15",
+     desc:"New cycle opens Sep 11. Orientation, observation, modeling at the second Create gate. Communication is making first contact with its new leadership output. Watch carefully — genuine new authority sounds different from declared authority. The Create gate produces something that others recognize without being told to.",
+     now:isNow("2026-09-11","2026-09-15")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Sep 15 – Sep 18",
+     desc:"Planning, prototyping, testing the new leadership output. What is being communicated here is not expressing direction — it is creating authority. The distinction is in the response. Others follow what the Create gate produces not because they were directed to, but because the communication itself generates the following.",
+     now:isNow("2026-09-15","2026-09-18")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Sep 3, 2026",
+     desc:"One of the three most load-bearing gate closes of the year. What has been building toward this second Create gate either lands as genuine new authority or reveals the communication was not solid enough to produce it. Log exactly what happens. Do not soften the read toward what you hoped for. Freeze before you look. Score after.",
+     now:isNow("2026-09-02","2026-09-04")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Sep 3 – Sep 11",
+     desc:"Closing sequence. The most important accounting window of the second half of the year. What new leadership capacity emerged from the communication? What was created that did not exist before? What was declared but not generated? The distinction carries forward into October's translation phase.",
+     now:isNow("2026-09-03","2026-09-11")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Sep 11, 2026",
+     desc:"Lunation 1286 opens. October — Leadership expressing as Communication. The hinge. What September created in new leadership now becomes message — the generated authority is translated outward, made legible, explained. Let it form before translating it.",
+     now:isNow("2026-09-11","2026-09-12")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Sep 11 – Sep 18",
+     desc:"First read of what the September Create gate produced. What new authority exists that did not exist before August? Log without editing toward what you expected. This is the most important post-gate read of the second half of the year.",
+     now:isNow("2026-09-11","2026-09-18")},
+  ]
+},
+{
+  id:1286, month:"October", lun:"Lunation 1286", held:"Lead", expressed:"Com", create:false, anchor:false, stable:false,
+  dates:"Sep 11 – Oct 10, 2026",
+  sig_note:"Leadership expressing as Communication — The Hinge",
+  body:"The hinge position. Leadership expressing as communication — direction becoming message. The authority generated in September now has to be translated into language others can act on. October is not about producing more authority — it is about making the existing authority legible. Watch for direction that becomes words, for things that were pointing now being explained. October is the month where leadership makes itself readable.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Sep 25 – Oct 2",
+     desc:"Full moon Sep 25 opens the preparation window. What September created in authority is now at peak visibility. Watch what leadership is being communicated from — what is pointing clearly enough to be translated into message? The hinge gate will translate what is solid and reveal what is still forming.",
+     now:isNow("2026-09-25","2026-10-02")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Oct 10 – Oct 14",
+     desc:"New cycle opens Oct 10. Orientation, observation, modeling at the hinge. Leadership is making first contact with its communicative expression. The hinge is where direction learns to speak. Watch for the moment when what has been pointing becomes what is being said.",
+     now:isNow("2026-10-10","2026-10-14")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Oct 14 – Oct 17",
+     desc:"Planning, prototyping, testing the leadership-as-communication output. Direction is being expressed as message. This is not improvised speech — it is leadership translated into language that others can receive and act from. The translation work of the hinge is some of the most precise work in the full cycle.",
+     now:isNow("2026-10-14","2026-10-17")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Oct 3, 2026",
+     desc:"The hinge gate close. What leadership has been translated into communication either locks as a legible directional message or reveals the translation was incomplete. Log what becomes readable — decisions, positions, directions that are now in language others can act on. Freeze before you look. Score after.",
+     now:isNow("2026-10-02","2026-10-04")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Oct 3 – Oct 10",
+     desc:"Closing sequence. What was translated and what remained opaque? What leadership became communication and what stayed as direction that only the holder could read? The November anchor will stabilize whatever organizational structure emerged from this translation.",
+     now:isNow("2026-10-03","2026-10-10")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Oct 10, 2026",
+     desc:"Lunation 1287 opens. November — the anchor. Organization held and expressed as the same quality. The still point. What October communicated is now being locked into organizational structure for stabilization. Let it settle.",
+     now:isNow("2026-10-10","2026-10-11")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Oct 10 – Oct 17",
+     desc:"First read of what the hinge gate produced. What leadership became legible message? What is now in language that wasn't before September? Log what direction can now be received by others that couldn't be before.",
+     now:isNow("2026-10-10","2026-10-17")},
+  ]
+},
+{
+  id:1287, month:"November", lun:"Lunation 1287", held:"Org", expressed:"Org", create:false, anchor:true, stable:true,
+  dates:"Oct 10 – Nov 9, 2026",
+  sig_note:"Organization held and expressed as the same quality — Anchor",
+  body:"The anchor. The still point of the year. Organization held and expressed as the same quality — nothing new is created here and that is precisely its function. November locks structure in place, making the December conversion and the January Create gate possible. The pre-boot stabilizer. What holds here is what the next full loop will build from. Nothing should be forced through this gate. What is not structurally solid here will not survive December and January.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Oct 25 – Nov 1",
+     desc:"Full moon Oct 25 opens the preparation window. What October translated into communication is now at peak visibility. Watch what organizational structure has been established from the year's motion. The anchor gate will lock whatever structure is solid and let the rest dissolve. This is not a window for new launches — it is a window for honest accounting of what holds.",
+     now:isNow("2026-10-25","2026-11-01")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Nov 9 – Nov 13",
+     desc:"New cycle opens Nov 9. Orientation, observation, modeling from the anchor position. The field is reading what structure exists before it stabilizes. This is the quietest opening phase of the year. The anchor doesn't orient toward something new — it confirms what is already there.",
+     now:isNow("2026-11-09","2026-11-13")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Nov 13 – Nov 16",
+     desc:"Planning, prototyping, testing from the anchor. Actions in this phase are consolidating, not building. What gets locked here is the organizational baseline the December and January cycles will work from. Forced action against the anchor tends to collapse — the field is not supporting new production, only stabilization.",
+     now:isNow("2026-11-13","2026-11-16")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Nov 1, 2026",
+     desc:"The anchor gate close. What organizational structure has been built through the year either locks here as a stable baseline or reveals it was not structurally solid enough to hold. Log what is now organized and stable — not what is in motion, but what has settled. Freeze before you look. Score after.",
+     now:isNow("2026-10-31","2026-11-02")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Nov 1 – Nov 9",
+     desc:"Closing sequence. The most important structural accounting of the year. What is solid? What is loose? What needs more formation before December and January can work from it? The anchor closing sequence is the honest audit that makes the next loop possible.",
+     now:isNow("2026-11-01","2026-11-09")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Nov 9, 2026",
+     desc:"Lunation 1288 opens. December — Communication expressing as Leadership. What November anchored in organization now has to produce communication that becomes directive. The final conversion gate of the year. Let the anchor settle fully before the December gate fires.",
+     now:isNow("2026-11-09","2026-11-10")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Nov 9 – Nov 16",
+     desc:"First read of what the anchor gate produced. What is now stable that wasn't before October? Log what organizational structure has locked. This is the baseline the next full loop will build from.",
+     now:isNow("2026-11-09","2026-11-16")},
+  ]
+},
+{
+  id:1288, month:"December", lun:"Lunation 1288", held:"Com", expressed:"Lead", create:false, anchor:false, stable:false,
+  dates:"Nov 9 – Dec 8, 2026",
+  sig_note:"Communication expressing as Leadership — Final Conversion",
+  body:"The final conversion gate of the year. Communication expressing as leadership — what has been said becomes what directs. The explanation produces the directive. The message becomes the movement. December closes the year by producing direction from communication, and the direction it produces is the base the January Create gate will work from. What binds at December's gate is what the new loop will build from.",
+  phases:[
+    {cls:"ph-prep", label:"PREPARATION WINDOW",
+     dates:"Nov 23 – Nov 30",
+     desc:"Full moon Nov 23 opens the preparation window. What November anchored in structure is now at peak visibility. Watch what communication has been building toward direction. The December field will produce leadership from whatever communication is most coherently expressed — not the loudest, but the most structured in its expression.",
+     now:isNow("2026-11-23","2026-11-30")},
+    {cls:"ph-ax", label:"A1–A3 · OPENING AXES",
+     dates:"Dec 8 – Dec 12",
+     desc:"New cycle opens Dec 8. Orientation, observation, modeling. Communication is making first contact with its directional output. Watch for the moment when what has been said begins to produce clear direction — when the message becomes the movement.",
+     now:isNow("2026-12-08","2026-12-12")},
+    {cls:"ph-ax", label:"A4–A6 · ACTION AXES",
+     dates:"Dec 12 – Dec 15",
+     desc:"Planning, prototyping, testing the communication-as-leadership output. Direction is emerging from what has been communicated. This is not declared authority — it is direction produced by the coherence of the expression. The more solid the communication was through October and November, the cleaner this direction.",
+     now:isNow("2026-12-12","2026-12-15")},
+    {cls:"ph-close", label:"GATE CLOSE — LAST QUARTER",
+     dates:"Dec 1, 2026",
+     desc:"The final gate close of the year. What communication has been producing direction either locks here as a real directional statement or reveals the expression was not coherent enough to produce authority. Log what becomes directive — what is now being followed that wasn't before November. Freeze before you look. Score after.",
+     now:isNow("2026-11-30","2026-12-02")},
+    {cls:"ph-int", label:"A5–A6 · ADAPTATION + INTEGRATION",
+     dates:"Dec 1 – Dec 8",
+     desc:"Closing sequence. What direction did the year's communication produce? What is pointing clearly enough to survive the January Create gate? The January gate will create organization from this direction — it needs to be solid, not just expressed.",
+     now:isNow("2026-12-01","2026-12-08")},
+    {cls:"ph-open", label:"GATE OPEN — NEW CYCLE",
+     dates:"Dec 8, 2026",
+     desc:"Lunation 1289 opens. January 2027 — the third Create gate. Leadership creates Organization. The loop closes. What December established in direction will be transformed into new structure. The cycle completes.",
+     now:isNow("2026-12-08","2026-12-09")},
+    {cls:"ph-seq", label:"POST-GATE WEEK",
+     dates:"Dec 8 – Dec 15",
+     desc:"First read of what the December gate produced. What direction is now established from communication? Log what is now pointing clearly that wasn't before November. This is the final evidence window of the year.",
+     now:isNow("2026-12-08","2026-12-15")},
+  ]
+}
+];
+
+// ── BUILD UI ──────────────────────────────────────────────────────────────
+function pillH(q){
+  var cls={Org:'org',Com:'com',Lead:'lead',Create:'create'}[q]||'org';
+  return '<span class="pill p-'+cls+'">'+q+'</span>';
+}
+
+var nav=document.getElementById('monthNav');
+var container=document.getElementById('paneContainer');
+var now=new Date();
+
+LUNATIONS.forEach(function(l,i){
+  var isCurrent=(now>=new Date(l.dates.split('–')[0].trim().replace(/(\w+ \d+)$/,'$1 2026'))&&
+    now<=new Date(l.dates.split('–')[1].trim()+(l.dates.split('–')[1].trim().includes('2027')?'':' 2026')));
+  // simpler current check
+  var monthIdx={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+  isCurrent = monthIdx[l.month]===now.getMonth() && l.month!=='January';
+
+  // nav button
+  var btn=document.createElement('button');
+  btn.className='mnav-btn'+(l.create?' create-m':'')+(isCurrent?' current-m active':'');
+  btn.textContent=l.month.substring(0,3).toUpperCase()+(l.create?' ▲':'');
+  btn.onclick=(function(idx){return function(){showPane(idx)}})(i);
+  nav.appendChild(btn);
+
+  // pane
+  var pane=document.createElement('div');
+  pane.className='mpane'+(isCurrent?' active':'');
+  pane.id='pane-'+i;
+
+  var hdrCls='m-header'+(l.create?' create-h':'')+(isCurrent?' current-h':'');
+  var sig='<div class="m-sig">'+pillH(l.held)+'<span class="arr">→</span>'
+    +(l.create?pillH('Create')+'<span class="arr">→</span>':'')+pillH(l.expressed)+'</div>';
+  var badges='';
+  if(isCurrent)badges+='<span class="badge badge-now">NOW</span> ';
+  if(l.create)badges+='<span class="badge badge-create">▲ CREATE GATE</span> ';
+  if(l.anchor)badges+='<span class="badge badge-anchor">ANCHOR</span> ';
+  if(l.stable&&!l.anchor)badges+='<span class="badge badge-stable">STABILIZER</span>';
+
+  var phases='';
+  l.phases.forEach(function(p){
+    phases+='<div class="phase-block '+p.cls+'">'
+      +'<div class="ph-label">'+p.label+'</div>'
+      +'<div class="ph-dates">'+p.dates+'</div>'
+      +'<div class="ph-desc">'+p.desc+'</div>'
+      +'</div>';
+  });
+
+  pane.innerHTML='<div class="'+hdrCls+'">'
+    +'<div style="font-family:Cinzel,serif;font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:3px">'+l.lun+'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:22px;color:var(--gold);letter-spacing:.1em;margin-bottom:.4rem">'+l.month+'</div>'
+    +sig
+    +'<div style="font-size:11px;color:var(--dim);margin-bottom:.5rem">'+l.dates+'</div>'
+    +'<div style="margin-bottom:.5rem">'+badges+'</div>'
+    +'<div style="font-size:13px;color:var(--soft);letter-spacing:.03em;font-style:italic">'+l.sig_note+'</div>'
+    +'</div>'
+    +'<div class="card"><div class="card-title">WHAT THIS MONTH MEANS</div><p>'+l.body+'</p></div>'
+    +'<div style="font-family:Cinzel,serif;font-size:10px;color:var(--dim);letter-spacing:.1em;margin-bottom:.6rem;padding:0 .1rem">PHASE TIMELINE</div>'
+    +'<div class="phase-list">'+phases+'</div>';
+
+  container.appendChild(pane);
+});
+
+function showPane(idx){
+  document.querySelectorAll('.mpane').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.mnav-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('pane-'+idx).classList.add('active');
+  document.querySelectorAll('.mnav-btn')[idx].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// scroll to current month in nav
+var activeBtn=document.querySelector('.mnav-btn.active');
+if(activeBtn)activeBtn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+</script>
+</body>
+</html>
